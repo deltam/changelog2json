@@ -28,24 +28,22 @@ func parse(text string) ([]changelog, error) {
 		i++
 		return !eof
 	}
-
-	if !isHeader(sc.Text()) {
-		nextLine()
+	skipBlank := func() {
+		for nextLine() {
+			if sc.Text() != "" {
+				break
+			}
+		}
 	}
 
+	skipBlank()
 	for !eof {
 		h, err := parseHeader(sc.Text())
 		if err != nil {
 			return nil, fmt.Errorf("[line %d] %v", i, err)
 		}
 
-		// skip blank
-		for nextLine() {
-			if sc.Text() != "" {
-				break
-			}
-		}
-
+		skipBlank()
 		for isTitle(sc.Text()) {
 			m, err := parseTitle(sc.Text(), *h)
 			if err != nil {
